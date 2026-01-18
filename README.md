@@ -1,72 +1,178 @@
-# Ton-Telegram-Mini-App-Template
+# Cyber Skull Shooter - TON Telegram Mini App
 
-This is a template for developing Telegram mini apps on the TON blockchain. It is built using ReactJS, Tailwind CSS, and Vite to enable quick development of mini app user interfaces. Brought to you by [TonPanda](https://tonpanda.com/).
+A multiplayer cyberpunk-themed shooter game built on the TON blockchain, featuring NFT-powered character upgrades and real-time multiplayer combat. Built with ReactJS, Tailwind CSS, Phaser 3, and integrated with TON blockchain for NFT support.
 
-## Features
+## 🎮 Game Features
 
-- **ReactJS**: A popular JavaScript library for building user interfaces, providing a component-based architecture and efficient rendering.
-- **Tailwind CSS**: A utility-first CSS framework that allows for rapid styling and customization of the app's UI.
-- **Vite**: A fast build tool that offers instant hot module replacement and optimized development experience.
+### Core Gameplay
+- **Top-down shooter mechanics** with smooth WASD/Arrow key movement
+- **Click-to-shoot** or **Space bar** for auto-fire combat
+- **Wave-based enemy spawning** with progressive difficulty
+- **Cyberpunk skull player character** with neon visual effects
+- **Real-time collision detection** and physics-based gameplay
+- **Score multiplier system** based on wave progression
 
-## Getting Started
+### NFT Integration (TON Blockchain)
+- **NFT-powered upgrades** that enhance gameplay:
+  - **⚔️ Weapon Upgrades**: Increased damage and fire rate
+  - **🛡️ Armor Upgrades**: Extra health and damage reduction
+  - **⚡ Ability Upgrades**: Special powers and enhanced capabilities
+  - **🎨 Cosmetic Upgrades**: Character and weapon skins
+- **Automatic stat application** when NFTs are owned in your TON wallet
+- **NFT Inventory UI** to view and manage your collection
+- **Real-time bonus display** in the game HUD
 
-To start using this template, follow these steps:
+### Multiplayer Modes
+- **🎯 Wave Survival (Solo)**: Survive endless enemy waves alone
+- **👥 Team Deathmatch (2-4 Players)**: Cooperate against AI enemies
+- **⚔️ Free for All (2-4 Players)**: Compete against other players and AI
+- **WebSocket-based synchronization** for real-time multiplayer
+- **Player position and health tracking** across all connected players
+- **Global leaderboard** with blockchain-verified scores
+
+### UI/UX
+- **Cyberpunk-themed design** with neon colors and futuristic styling
+- **Main menu** with game mode selection
+- **In-game HUD** showing health, score, wave, and active NFT bonuses
+- **NFT inventory screen** with detailed upgrade information
+- **Global leaderboard** displaying top players
+- **Responsive design** optimized for mobile and desktop
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Node.js 16+ installed
+- TON wallet (optional, for NFT features)
+
+### Installation
 
 1. Clone the repository:
-
    ```bash
-   git clone https://github.com/tonpanda-lab/ton-telegram-mini-app-template.git
+   git clone https://github.com/wrxbiiios/ton-telegram-mini-app-template.git
+   cd ton-telegram-mini-app-template
    ```
 
 2. Install dependencies:
-
    ```bash
-   cd ton-telegram-mini-app-template
    npm install
    ```
 
 3. Start the development server:
-
    ```bash
    npm run dev
    ```
 
-This will start a local development server at `http://localhost:3000`. You can now start developing your Telegram mini app using the provided template.
+4. Open your browser and navigate to `http://localhost:5173` (or the port shown in console)
 
-## Project Structure
+5. Click on the **GAME** tab in the footer to start playing!
 
-The project structure is organized as follows:
+## 🎯 How to Play
+
+### Controls
+- **WASD** or **Arrow Keys**: Move your character
+- **Mouse Click**: Shoot towards cursor
+- **Space Bar**: Auto-fire in the direction you're facing
+- **ESC**: Pause/Menu (via Menu button)
+
+### Gameplay Tips
+- Enemies spawn from all sides - stay mobile!
+- Each wave increases enemy count and health
+- Collect NFTs to boost your stats permanently
+- Connect your TON wallet to unlock NFT upgrades
+- Compete on the global leaderboard
+
+## 🏗️ Project Structure
 
 ```
 ton-telegram-mini-app-template/
-├── public/
-│   └── index.html
+├── public/              # Static assets
 ├── src/
-│   ├── components/
-│   │   └──...
-│   ├── pages/
-│   │   └──...
-│   ├── App.jsx
-│   ├── index.jsx
-│   └── tailwind.config.js
-├── vite.config.js
-└── package.json
+│   ├── components/      # React UI components
+│   │   ├── GameHUD.tsx          # In-game heads-up display
+│   │   ├── GameMenu.tsx         # Main menu screen
+│   │   ├── NFTInventory.tsx     # NFT collection viewer
+│   │   ├── Leaderboard.tsx      # Global leaderboard
+│   │   └── ...
+│   ├── game/            # Phaser game engine code
+│   │   ├── GameScene.ts         # Main game scene logic
+│   │   ├── PhaserGame.tsx       # React-Phaser integration
+│   │   ├── config.ts            # Game configuration
+│   │   └── types.ts             # TypeScript interfaces
+│   ├── pages/           # Page components
+│   │   ├── GamePage.tsx         # Main game page
+│   │   ├── Home.tsx
+│   │   └── ...
+│   ├── hooks/           # Custom React hooks
+│   │   ├── useTonConnect.ts     # TON wallet integration
+│   │   └── ...
+│   └── App.tsx          # Main app component
+├── vite.config.js       # Vite configuration
+└── package.json         # Dependencies
 ```
 
-- `public/`: Contains the static HTML file for the app.
-- `src/`: Contains the source code of the app.
-- `components/`: Contains reusable UI components.
-- `pages/`: Contains the different pages of the app.
-- `App.jsx`: The main application component.
-- `index.jsx`: The entry point of the application.
-- `tailwind.config.js`: The Tailwind CSS configuration file.
-- `vite.config.js`: The Vite configuration file.
-- `package.json`: Contains the project dependencies and scripts.
+## 🔧 Technology Stack
 
-## Contributing
+- **Frontend Framework**: React 18 + TypeScript
+- **Game Engine**: Phaser 3
+- **Styling**: Tailwind CSS + DaisyUI
+- **Blockchain**: TON (The Open Network)
+  - TON Connect for wallet integration
+  - NFT support via ton-core
+- **Multiplayer**: Socket.io (client-ready, server required)
+- **Build Tool**: Vite
+- **State Management**: React hooks + TanStack Query
 
-Contributions are welcome! If you find any issues or have suggestions for improvement, please open an issue or submit a pull request.
+## 🎨 NFT Upgrade System
 
-## License
+The game integrates with TON blockchain to fetch NFTs owned by the connected wallet. Each NFT provides specific bonuses:
+
+### NFT Types
+1. **Weapon NFTs** - Increase damage and fire rate
+2. **Armor NFTs** - Boost health and provide shields
+3. **Ability NFTs** - Grant special powers
+4. **Cosmetic NFTs** - Change visual appearance
+
+### How It Works
+1. Connect your TON wallet via the header button
+2. The game automatically fetches your NFTs
+3. Bonuses are applied in real-time
+4. View your collection in the NFT Inventory screen
+5. All bonuses stack for maximum power!
+
+## 🌐 Multiplayer Setup
+
+**Note**: The game client is fully ready for multiplayer, but requires a separate WebSocket server for full functionality.
+
+### Current Status
+- ✅ Client-side multiplayer code implemented
+- ✅ Socket.io client integration ready
+- ✅ Player synchronization logic in place
+- ⏳ WebSocket server needs to be deployed separately
+
+### For Developers
+To enable multiplayer, deploy a Socket.io server and update the connection URL in `src/game/PhaserGame.tsx`:
+
+```typescript
+socketRef.current = io('YOUR_WEBSOCKET_SERVER_URL');
+```
+
+## 📊 Leaderboard System
+
+Scores can be stored on the TON blockchain for permanent verification. The current implementation shows a mock leaderboard - integrate with a smart contract for production use.
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## 📄 License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
+## 🙏 Credits
+
+Template brought to you by [TonPanda](https://tonpanda.com/).
+
+Game features:
+- Phaser 3 game engine
+- TON blockchain integration
+- Cyberpunk design inspiration
