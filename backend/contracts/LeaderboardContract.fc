@@ -1,0 +1,103 @@
+;; LeaderboardContract.fc
+;; On-chain Leaderboard with Seasonal Rankings
+
+#include "stdlib.fc";
+
+;; Storage: season:uint32 entries:^Cell owner:MsgAddress
+;; entries: dict of player_address -> (score:uint64, kills:uint32, wave:uint16, timestamp:uint64)
+
+global int ctx_season;
+global cell ctx_entries;
+global slice ctx_owner;
+
+() load_data() impure {
+    slice ds = get_data().begin_parse();
+    ctx_season = ds~load_uint(32);
+    ctx_entries = ds~load_dict();
+    ctx_owner = ds~load_msg_addr();
+}
+
+() save_data() impure {
+    set_data(begin_cell()
+        .store_uint(ctx_season, 32)
+        .store_dict(ctx_entries)
+        .store_slice(ctx_owner)
+        .end_cell()
+    );
+}
+
+() recv_internal(int my_balance, int msg_value, cell in_msg_full, slice in_msg_body) impure {
+    if (in_msg_body.slice_empty?()) {
+        return ();
+    }
+
+    slice cs = in_msg_full.begin_parse();
+    int flags = cs~load_uint(4);
+    if (flags & 1) {
+        return ();
+    }
+    
+    slice sender_address = cs~load_msg_addr();
+    load_data();
+
+    int op = in_msg_body~load_uint(32);
+    int query_id = in_msg_body~load_uint(64);
+
+    ;; Submit score
+    if (op == 0x1) {
+        int score = in_msg_body~load_uint(64);
+        int kills = in_msg_body~load_uint(32);
+        int wave = in_msg_body~load_uint(16);
+        int timestamp = now();
+
+        ;; Validate score is higher than current
+        (slice current_entry, int found) = ctx_entries.udict_get?(256, sender_address.slice_hash());
+        if (found) {
+            int current_score = current_entry~load_uint(64);
+            throw_unless(400, score > current_score);
+        }
+
+        ;; Store new entry
+        cell entry = begin_cell()
+            .store_uint(score, 64)
+            .store_uint(kills, 32)
+            .store_uint(wave, 16)
+            .store_uint(timestamp, 64)
+            .end_cell();
+        
+        ctx_entries~udict_set(256, sender_address.slice_hash(), entry.begin_parse());
+        save_data();
+        return ();
+    }
+
+    ;; Reset season (owner only)
+    if (op == 0x2) {
+        throw_unless(401, equal_slices(sender_address, ctx_owner));
+        ctx_season += 1;
+        ctx_entries = new_dict();
+        save_data();
+        return ();
+    }
+
+    throw(0xffff);
+}
+
+;; GET Methods
+(int, cell) get_leaderboard() method_id {
+    load_data();
+    return (ctx_season, ctx_entries);
+}
+
+(int, int, int, int) get_player_score(slice player_address) method_id {
+    load_data();
+    (slice entry, int found) = ctx_entries.udict_get?(256, player_address.slice_hash());
+    if (~ found) {
+        return (0, 0, 0, 0);
+    }
+    return (
+        entry~load_uint(64), ;; score
+        entry~load_uint(32), ;; kills
+        entry~load_uint(16), ;; wave
+        entry~load_uint(64)  ;; timestamp
+    );
+}

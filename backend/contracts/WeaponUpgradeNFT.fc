@@ -1,0 +1,94 @@
+;; WeaponUpgradeNFT.fc
+;; NFT Contract for Weapon Upgrades with Merge Mechanics
+
+#include "stdlib.fc";
+
+;; Storage schema includes weapon stats
+;; storage#_ index:uint64 collection_address:MsgAddress owner_address:MsgAddress 
+;;           weapon_type:uint8 level:uint16 rarity:uint8 stats:^Cell = Storage;
+
+(int, int, slice, slice, int, int, int, cell) load_data() inline {
+    slice ds = get_data().begin_parse();
+    var (index, init) = (ds~load_uint(64), ds~load_uint(1));
+    if (init == 0) {
+        return (index, init, null(), null(), 0, 0, 0, null());
+    }
+    return (
+        index,
+        init,
+        ds~load_msg_addr(), ;; collection_address
+        ds~load_msg_addr(), ;; owner_address
+        ds~load_uint(8),    ;; weapon_type
+        ds~load_uint(16),   ;; level
+        ds~load_uint(8),    ;; rarity (0=common, 1=rare, 2=epic, 3=legendary)
+        ds~load_ref()       ;; stats cell
+    );
+}
+
+() store_data(int index, int init, slice collection_address, slice owner_address, int weapon_type, int level, int rarity, cell stats) impure inline {
+    set_data(
+        begin_cell()
+            .store_uint(index, 64)
+            .store_uint(init, 1)
+            .store_slice(collection_address)
+            .store_slice(owner_address)
+            .store_uint(weapon_type, 8)
+            .store_uint(level, 16)
+            .store_uint(rarity, 8)
+            .store_ref(stats)
+            .end_cell()
+    );
+}
+
+() recv_internal(int my_balance, int msg_value, cell in_msg_full, slice in_msg_body) impure {
+    if (in_msg_body.slice_empty?()) {
+        return ();
+    }
+
+    slice cs = in_msg_full.begin_parse();
+    int flags = cs~load_uint(4);
+    if (flags & 1) {
+        return ();
+    }
+    
+    slice sender_address = cs~load_msg_addr();
+    
+    (int index, int init, slice collection_address, slice owner_address, int weapon_type, int level, int rarity, cell stats) = load_data();
+
+    if (~ init) {
+        throw_unless(405, equal_slices(collection_address, sender_address));
+        slice new_owner = in_msg_body~load_msg_addr();
+        int new_weapon_type = in_msg_body~load_uint(8);
+        int new_level = in_msg_body~load_uint(16);
+        int new_rarity = in_msg_body~load_uint(8);
+        cell new_stats = in_msg_body~load_ref();
+        store_data(index, 1, collection_address, new_owner, new_weapon_type, new_level, new_rarity, new_stats);
+        return ();
+    }
+
+    int op = in_msg_body~load_uint(32);
+    int query_id = in_msg_body~load_uint(64);
+
+    ;; Upgrade weapon (increase level)
+    if (op == 0x1) {
+        throw_unless(401, equal_slices(owner_address, sender_address));
+        int new_level = level + 1;
+        store_data(index, init, collection_address, owner_address, weapon_type, new_level, rarity, stats);
+        return ();
+    }
+
+    ;; Burn weapon (for character upgrade)
+    if (op == 0x2) {
+        throw_unless(401, equal_slices(owner_address, sender_address));
+        ;; Mark as burned by setting owner to null
+        store_data(index, init, collection_address, begin_cell().store_uint(0, 2).end_cell().begin_parse(), weapon_type, level, rarity, stats);
+        return ();
+    }
+    
+    throw(0xffff);
+}
+
+;; GET Methods
+(int, int, slice, slice, int, int, int, cell) get_weapon_data() method_id {
+    return load_data();
+}
