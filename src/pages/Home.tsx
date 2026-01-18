@@ -2,6 +2,7 @@
 import { BasicInfo } from '../components/BasicInfo';
 import { Footer } from '../components/Footer';
 import { SavingInfo } from '../components/SavingInfo';
+import { Link } from 'react-router-dom';
 
 export function Home() {
 
@@ -15,6 +16,16 @@ export function Home() {
 
                     <BasicInfo />
                     <SavingInfo />
+                    
+                    {/* Game Link */}
+                    <div className="px-4 pt-4">
+                        <Link 
+                            to="/game"
+                            className="block w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white text-center font-bold py-4 px-6 rounded-lg transition-all duration-200 transform hover:scale-105"
+                        >
+                            🎮 Play Cyberpunk Shooter
+                        </Link>
+                    </div>
 
                 </div>
 

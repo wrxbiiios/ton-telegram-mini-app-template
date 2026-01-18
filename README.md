@@ -7,6 +7,64 @@ This is a template for developing Telegram mini apps on the TON blockchain. It i
 - **ReactJS**: A popular JavaScript library for building user interfaces, providing a component-based architecture and efficient rendering.
 - **Tailwind CSS**: A utility-first CSS framework that allows for rapid styling and customization of the app's UI.
 - **Vite**: A fast build tool that offers instant hot module replacement and optimized development experience.
+- **Comprehensive Level System**: Full-featured level design system for game development (see below)
+
+## 🎮 New: Cyberpunk Shooter Level System
+
+This template now includes a complete level design and procedural generation system perfect for building Telegram-optimized games!
+
+### Level System Features
+
+- ✅ **60 Handcrafted Levels** across 7 unique themes
+- ✅ **6 Epic Boss Battles** with multi-phase mechanics
+- ✅ **Procedural Generation** with seed-based fairness
+- ✅ **Daily & Weekly Challenges** for player engagement
+- ✅ **7 Challenge Modes** (Time Attack, Survival, Pacifist, etc.)
+- ✅ **Endless & Roguelike Modes** with dynamic difficulty
+- ✅ **Complete Progression System** with star ratings
+- ✅ **Prestige System** for replayability
+- ✅ **Leaderboard System** (level, global, theme-based)
+- ✅ **Progress Analytics** and statistics dashboard
+- ✅ **Mobile-Optimized** for Telegram mini-apps
+
+### Quick Start with Level System
+
+```bash
+# The level system is ready to use!
+# Navigate to /game route to see it in action
+npm run dev
+# Open http://localhost:5173/game
+```
+
+### Documentation
+
+- **[Level System Documentation](LEVEL_SYSTEM_README.md)** - Complete system overview
+- **[Integration Examples](INTEGRATION_EXAMPLES.md)** - Code examples and best practices
+
+### Level System Architecture
+
+```
+src/
+├── types/
+│   └── level.types.ts           # TypeScript definitions
+├── data/
+│   ├── themes.ts                # 7 themed environments
+│   ├── bosses.ts                # 6 boss configurations
+│   └── levels.ts                # 60 level definitions
+├── utils/
+│   ├── proceduralGenerator.ts   # Procedural level generation
+│   ├── levelUtils.ts            # Level management utilities
+│   ├── challengeModes.ts        # Challenge variants & endless mode
+│   └── leaderboard.ts           # Leaderboard system
+├── hooks/
+│   └── useLevelSystem.ts        # React hook for level state
+├── components/
+│   ├── LevelSelector.tsx        # Level selection UI
+│   ├── LeaderboardDisplay.tsx   # Leaderboard components
+│   └── ProgressStats.tsx        # Statistics dashboard
+└── pages/
+    └── GamePage.tsx             # Main game interface
+```
 
 ## Getting Started
 
