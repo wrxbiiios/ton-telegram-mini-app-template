@@ -25,9 +25,10 @@ export const PhaserGame: React.FC<PhaserGameProps> = ({
 
     // Set up multiplayer socket if enabled
     if (multiplayerEnabled) {
-      // For demo purposes, we'll create a placeholder socket
-      // In production, this would connect to a real WebSocket server
-      socketRef.current = io('ws://localhost:3001', {
+      // WebSocket server URL - configurable via environment variable
+      const wsUrl = import.meta.env.VITE_WS_SERVER_URL || 'ws://localhost:3001';
+      
+      socketRef.current = io(wsUrl, {
         autoConnect: false,
       });
       

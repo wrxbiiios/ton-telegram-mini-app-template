@@ -2,6 +2,9 @@ import Phaser from 'phaser';
 import { GameState, Player, Enemy, Bullet, NFTUpgrade } from './types';
 
 export class GameScene extends Phaser.Scene {
+  private static readonly BULLET_LIFETIME = 2000; // milliseconds
+  private static readonly BASE_PLAYER_SPEED = 200;
+  
   private player!: Phaser.Physics.Arcade.Sprite;
   private enemies!: Phaser.Physics.Arcade.Group;
   private bullets!: Phaser.Physics.Arcade.Group;
@@ -162,7 +165,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   private handlePlayerMovement() {
-    const speed = 200 * this.nftBonuses.speedMultiplier;
+    const speed = GameScene.BASE_PLAYER_SPEED * this.nftBonuses.speedMultiplier;
     const velocity = { x: 0, y: 0 };
 
     if (this.cursors.left.isDown || this.wasd.A.isDown) {
@@ -193,7 +196,7 @@ export class GameScene extends Phaser.Scene {
     const angle = this.player.rotation || 0;
     bullet.setVelocity(Math.cos(angle) * 400, Math.sin(angle) * 400);
     
-    this.time.delayedCall(2000, () => {
+    this.time.delayedCall(GameScene.BULLET_LIFETIME, () => {
       bullet.destroy();
     });
   }
@@ -211,7 +214,7 @@ export class GameScene extends Phaser.Scene {
     bullet.setVelocity(Math.cos(angle) * 400, Math.sin(angle) * 400);
     this.player.rotation = angle;
     
-    this.time.delayedCall(2000, () => {
+    this.time.delayedCall(GameScene.BULLET_LIFETIME, () => {
       bullet.destroy();
     });
   }
@@ -276,14 +279,22 @@ export class GameScene extends Phaser.Scene {
   }
 
   private applyNFTBonuses(nftUpgrades: NFTUpgrade[]) {
+    // Reset bonuses to base values before applying
+    this.nftBonuses = {
+      damageMultiplier: 1,
+      fireRateMultiplier: 1,
+      healthBonus: 0,
+      speedMultiplier: 1,
+    };
+
     nftUpgrades.forEach((nft) => {
       switch (nft.type) {
         case 'weapon':
-          this.nftBonuses.damageMultiplier += nft.bonus.damage || 0;
-          this.nftBonuses.fireRateMultiplier += nft.bonus.fireRate || 0;
+          this.nftBonuses.damageMultiplier += (nft.bonus.damage || 0);
+          this.nftBonuses.fireRateMultiplier += (nft.bonus.fireRate || 0);
           break;
         case 'armor':
-          this.nftBonuses.healthBonus += nft.bonus.health || 0;
+          this.nftBonuses.healthBonus += (nft.bonus.health || 0);
           break;
         case 'ability':
           // Special abilities can be added here

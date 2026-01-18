@@ -13,6 +13,7 @@ export function GamePage() {
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [gameMode, setGameMode] = useState<GameMode | null>(null);
   const [multiplayerEnabled, setMultiplayerEnabled] = useState(false);
+  const [connectedPlayersCount, setConnectedPlayersCount] = useState(1);
   const [gameState, setGameState] = useState<GameState>({
     score: 0,
     health: 100,
@@ -120,7 +121,7 @@ export function GamePage() {
       <GameHUD
         gameState={gameState}
         nftBonuses={nftBonuses}
-        connectedPlayers={multiplayerEnabled ? 1 : 1}
+        connectedPlayers={connectedPlayersCount}
       />
 
       {/* Phaser Game Canvas */}
