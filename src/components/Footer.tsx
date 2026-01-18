@@ -2,7 +2,7 @@
 import { Link } from "react-router-dom";
 import { MdAdminPanelSettings, MdSettings, MdWallet } from "react-icons/md";
 import { Address } from 'ton-core';
-import { FaHome } from 'react-icons/fa';
+import { FaHome, FaGamepad } from 'react-icons/fa';
 import { useTonConnect } from "../hooks/useTonConnect";
 
 export function Footer() {
@@ -30,6 +30,14 @@ export function Footer() {
                         <FaHome size={25} className="w-8 h-8 mx-auto" />
                         <p className="mt-1">HOME </p>
                     </Link>
+                </div>
+
+                <div className="text-center text-gray-300 w-1/4 p-2 m-1 ">
+                    <Link to="/game">
+                        <FaGamepad className="w-8 h-8 mx-auto" />
+                        <p className="mt-1">GAME</p>
+                    </Link>
+
                 </div>
 
                 <div className="text-center text-gray-300 w-1/4 p-2 m-1 ">
