@@ -76,8 +76,12 @@ export function submitScore(
 
   saveLeaderboardStorage(storage);
 
-  // Return the player's entry
-  return storage[levelId].find(e => e.playerId === playerId)!;
+  // Return the player's entry with fallback
+  const playerEntry = storage[levelId].find(e => e.playerId === playerId);
+  if (!playerEntry) {
+    throw new Error(`Player entry not found after submission for ${playerId}`);
+  }
+  return playerEntry;
 }
 
 // Get leaderboard for a specific level

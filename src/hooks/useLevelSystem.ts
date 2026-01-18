@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Level, PlayerProgress, DailyChallenge } from '../types/level.types';
+import { Level, PlayerProgress } from '../types/level.types';
 import { LEVELS, getLevelByNumber } from '../data/levels';
 import { generateDailyChallenge, generateWeeklyChallenge, getWeekNumber } from '../utils/proceduralGenerator';
 import {

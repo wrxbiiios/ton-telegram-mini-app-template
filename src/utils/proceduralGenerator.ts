@@ -2,6 +2,8 @@ import { Level, ProceduralConfig, Position, Hazard, Collectible } from '../types
 import { getThemeByLevel, THEMES } from '../data/themes';
 
 // Seeded random number generator for deterministic generation
+// Uses Linear Congruential Generator (LCG) algorithm
+// Parameters chosen for good distribution: Park and Miller "minimal standard"
 class SeededRandom {
   private seed: number;
   
@@ -10,6 +12,8 @@ class SeededRandom {
   }
   
   next(): number {
+    // LCG formula: seed = (a * seed + c) % m
+    // a = 9301, c = 49297, m = 233280 (commonly used LCG parameters)
     this.seed = (this.seed * 9301 + 49297) % 233280;
     return this.seed / 233280;
   }

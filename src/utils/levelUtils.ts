@@ -5,8 +5,15 @@ import { LEVELS } from '../data/levels';
 export function isLevelUnlocked(level: Level, progress: PlayerProgress): boolean {
   if (!level.unlockRequirement) return true;
   
-  const requiredLevelId = level.unlockRequirement;
-  return progress.levelsCompleted.includes(parseInt(requiredLevelId.replace('level_', '')));
+  // Parse level number from requirement ID (format: "level_N")
+  const match = level.unlockRequirement.match(/^level_(\d+)$/);
+  if (!match) {
+    console.warn(`Invalid unlock requirement format: ${level.unlockRequirement}`);
+    return false;
+  }
+  
+  const requiredLevelNumber = parseInt(match[1], 10);
+  return progress.levelsCompleted.includes(requiredLevelNumber);
 }
 
 // Get all unlocked levels for a player
