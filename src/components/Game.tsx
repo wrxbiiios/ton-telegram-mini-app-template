@@ -1,60 +1,51 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const Game: React.FC = () => {
     const [score, setScore] = useState(0);
-    const [bullets, setBullets] = useState<number[]>([]);
-    const [targets, setTargets] = useState<{ id: number; position: number }[]>([]);
-    const [gameOver, setGameOver] = useState(false);
+    const [isGameOver, setIsGameOver] = useState(false);
+
+    const startGame = () => {
+        setScore(0);
+        setIsGameOver(false);
+        // Start game logic here (e.g., timer, game loop)
+    };
+
+    const endGame = () => {
+        setIsGameOver(true);
+        // Logic to handle ending the game (e.g., save scores)
+    };
+
+    const updateScore = (points: number) => {
+        setScore(prevScore => prevScore + points);
+    };
 
     useEffect(() => {
-        const interval = setInterval(() => {
-            if (!gameOver) {
-                setTargets(prevTargets => [
-                    ...prevTargets,
-                    { id: Math.random(), position: Math.random() * 100 },
-                ]);
-            }
-        }, 1000);
+        // Example game loop
+        if (!isGameOver) {
+            const interval = setInterval(() => {
+                // Game logic to update state
+                // Can also check for game over conditions here
+            }, 1000);
 
-        return () => clearInterval(interval);
-    }, [gameOver]);
-
-    const shoot = (id: number) => {
-        setBullets([...bullets, id]);
-        setTargets(prevTargets => prevTargets.filter(target => target.id !== id));
-        setScore(score + 1);
-    };
-
-    const handleGameOver = () => {
-        setGameOver(true);
-        alert(`Game Over! Final Score: ${score}`);
-    };
+            return () => clearInterval(interval);
+        }
+    }, [isGameOver]);
 
     return (
         <div>
-            <h1>Shooter Game</h1>
-            <div>
-                Score: {score}
-                {gameOver && <button onClick={() => window.location.reload()}>Restart</button>} 
-            </div>
-            <div style={{ position: 'relative', height: '400px', border: '1px solid black' }}>
-                {targets.map(target => (
-                    <div
-                        key={target.id}
-                        onClick={() => shoot(target.id)}
-                        style={{
-                            position: 'absolute',
-                            left: `${target.position}%`,
-                            top: Math.random() * 100 + '%',
-                            width: '20px',
-                            height: '20px',
-                            backgroundColor: 'red',
-                            cursor: 'pointer',
-                        }}
-                    />
-                ))}
-            </div>
-            <button onClick={handleGameOver}>End Game</button>
+            <h1>Simple Game</h1>
+            <h2>Score: {score}</h2>
+            {isGameOver ? (
+                <div>
+                    <h3>Game Over!</h3>
+                    <button onClick={startGame}>Restart Game</button>
+                </div>
+            ) : (
+                <div>
+                    <button onClick={() => updateScore(10)}>Increase Score</button>
+                    {/* Render more game UI here */}
+                </div>
+            )}
         </div>
     );
 };
