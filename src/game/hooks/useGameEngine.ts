@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { Player, Enemy, Bullet, PowerUp, GameState, WeaponType, EnemyType } from '../types';
 import { GAME_CONFIG, PLAYER_CONFIG, WEAPON_STATS, ENEMY_STATS } from '../constants';
 
@@ -34,10 +34,21 @@ export const useGameEngine = () => {
 
   const gameLoopRef = useRef<number>();
   const lastFireTimeRef = useRef<number>(0);
+  const gameStateRef = useRef(gameState);
+  
+  // Keep ref in sync with state
+  useEffect(() => {
+    gameStateRef.current = gameState;
+  }, [gameState]);
 
   // Physics update
-  const updatePhysics = (deltaTime: number) => {
+  const updatePhysics = useCallback((deltaTime: number) => {
     setGameState(prev => {
+      // Skip physics if paused or game over
+      if (prev.isPaused || prev.isGameOver) {
+        return prev;
+      }
+      
       const newState = { ...prev };
 
       // Update bullets
@@ -140,10 +151,10 @@ export const useGameEngine = () => {
         timeElapsed: prev.timeElapsed + deltaTime
       };
     });
-  };
+  }, []);
 
   // Spawn enemies
-  const spawnEnemies = (wave: number) => {
+  const spawnEnemies = useCallback((wave: number) => {
     const enemyCount = Math.floor(5 + wave * 2);
     const newEnemies = new Map(gameState.enemies);
 
@@ -184,10 +195,10 @@ export const useGameEngine = () => {
       enemies: newEnemies,
       wave
     }));
-  };
+  }, []);
 
   // Player shoot
-  const shoot = (targetX: number, targetY: number) => {
+  const shoot = useCallback((targetX: number, targetY: number) => {
     const now = Date.now();
     const weapon = WEAPON_STATS[localPlayer.currentWeapon];
     
@@ -218,10 +229,10 @@ export const useGameEngine = () => {
       bullets.set(bullet.id, bullet);
       return { ...prev, bullets };
     });
-  };
+  }, [localPlayer]);
 
   // Move player
-  const movePlayer = (keys: Set<string>) => {
+  const movePlayer = useCallback((keys: Set<string>) => {
     let vx = 0, vy = 0;
     
     if (keys.has('w') || keys.has('ArrowUp')) vy -= 1;
@@ -243,7 +254,7 @@ export const useGameEngine = () => {
       },
       velocity: { x: vx, y: vy }
     }));
-  };
+  }, []);
 
   // Game loop
   useEffect(() => {
@@ -254,9 +265,7 @@ export const useGameEngine = () => {
       const deltaTime = (now - lastTime) / 1000;
       lastTime = now;
 
-      if (!gameState.isPaused && !gameState.isGameOver) {
-        updatePhysics(deltaTime);
-      }
+      updatePhysics(deltaTime);
 
       gameLoopRef.current = requestAnimationFrame(gameLoop);
     };
@@ -268,11 +277,12 @@ export const useGameEngine = () => {
         cancelAnimationFrame(gameLoopRef.current);
       }
     };
-  }, [gameState.isPaused, gameState.isGameOver]);
+  }, [updatePhysics]);
 
-  // Initial enemy spawn
+  // Initial enemy spawn - only run once on mount
   useEffect(() => {
     spawnEnemies(1);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return {
