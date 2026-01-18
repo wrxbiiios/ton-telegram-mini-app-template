@@ -155,13 +155,14 @@ export const useGameEngine = () => {
 
   // Spawn enemies
   const spawnEnemies = useCallback((wave: number) => {
-    const enemyCount = Math.floor(5 + wave * 2);
-    const newEnemies = new Map(gameState.enemies);
+    setGameState(prev => {
+      const enemyCount = Math.floor(5 + wave * 2);
+      const newEnemies = new Map(prev.enemies);
 
-    for (let i = 0; i < enemyCount; i++) {
-      const type = wave % 5 === 0 ? EnemyType.BOSS : 
-                   Math.random() > 0.7 ? EnemyType.HEAVY : 
-                   Math.random() > 0.5 ? EnemyType.RANGED : EnemyType.MELEE;
+      for (let i = 0; i < enemyCount; i++) {
+        const type = wave % 5 === 0 ? EnemyType.BOSS : 
+                     Math.random() > 0.7 ? EnemyType.HEAVY : 
+                     Math.random() > 0.5 ? EnemyType.RANGED : EnemyType.MELEE;
       
       const stats = ENEMY_STATS[type];
       
@@ -187,14 +188,15 @@ export const useGameEngine = () => {
         isAlive: true
       };
 
-      newEnemies.set(enemy.id, enemy);
-    }
+        newEnemies.set(enemy.id, enemy);
+      }
 
-    setGameState(prev => ({
-      ...prev,
-      enemies: newEnemies,
-      wave
-    }));
+      return {
+        ...prev,
+        enemies: newEnemies,
+        wave
+      };
+    });
   }, []);
 
   // Player shoot
