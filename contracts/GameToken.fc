@@ -1,0 +1,112 @@
+;; GameToken Smart Contract
+;; Simple token for Cyberpunk Shooter game rewards
+
+#include "stdlib.fc";
+
+;; Storage
+;; total_supply, admin_address, minted_tokens
+(int, slice, int) load_data() inline {
+    slice ds = get_data().begin_parse();
+    return (
+        ds~load_uint(64),   ;; total_supply
+        ds~load_msg_addr(), ;; admin_address
+        ds~load_uint(64)    ;; minted_tokens
+    );
+}
+
+() save_data(int total_supply, slice admin_address, int minted_tokens) impure inline {
+    set_data(
+        begin_cell()
+            .store_uint(total_supply, 64)
+            .store_slice(admin_address)
+            .store_uint(minted_tokens, 64)
+            .end_cell()
+    );
+}
+
+;; Mint tokens (only admin)
+() mint_tokens(slice sender_address, int amount) impure {
+    var (total_supply, admin_address, minted_tokens) = load_data();
+    
+    ;; Check if sender is admin
+    throw_unless(401, equal_slices(sender_address, admin_address));
+    
+    ;; Check amount is positive
+    throw_unless(402, amount > 0);
+    
+    ;; Update storage
+    total_supply += amount;
+    minted_tokens += amount;
+    
+    save_data(total_supply, admin_address, minted_tokens);
+}
+
+;; Claim daily reward
+() claim_daily_reward(slice player_address, int last_claim_time) impure {
+    var (total_supply, admin_address, minted_tokens) = load_data();
+    
+    int current_time = now();
+    int day_in_seconds = 86400;
+    
+    ;; Check if 24 hours have passed since last claim
+    throw_unless(403, current_time - last_claim_time >= day_in_seconds);
+    
+    ;; Mint daily reward (100 tokens)
+    int reward = 100;
+    total_supply += reward;
+    minted_tokens += reward;
+    
+    save_data(total_supply, admin_address, minted_tokens);
+    
+    ;; Send tokens to player
+    var msg = begin_cell()
+        .store_uint(0x18, 6)
+        .store_slice(player_address)
+        .store_coins(reward)
+        .store_uint(0, 1 + 4 + 4 + 64 + 32 + 1 + 1)
+        .end_cell();
+    send_raw_message(msg, 1);
+}
+
+;; Main entry point
+() recv_internal(int my_balance, int msg_value, cell in_msg_full, slice in_msg_body) impure {
+    if (in_msg_body.slice_empty?()) {
+        return ();
+    }
+    
+    slice cs = in_msg_full.begin_parse();
+    int flags = cs~load_uint(4);
+    
+    if (flags & 1) {
+        return ();
+    }
+    
+    slice sender_address = cs~load_msg_addr();
+    
+    int op = in_msg_body~load_uint(32);
+    
+    if (op == 1) { ;; mint
+        int amount = in_msg_body~load_uint(64);
+        mint_tokens(sender_address, amount);
+        return ();
+    }
+    
+    if (op == 2) { ;; claim_daily
+        int last_claim = in_msg_body~load_uint(32);
+        claim_daily_reward(sender_address, last_claim);
+        return ();
+    }
+    
+    throw(0xffff);
+}
+
+;; Get methods
+int get_total_supply() method_id {
+    var (total_supply, _, _) = load_data();
+    return total_supply;
+}
+
+int get_minted_tokens() method_id {
+    var (_, _, minted_tokens) = load_data();
+    return minted_tokens;
+}
