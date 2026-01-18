@@ -5,6 +5,7 @@ import { Home } from './pages/Home';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { Header } from './components/Header';
 import { Plan } from './pages/Plan';
+import { CyberpunkGame } from './pages/CyberpunkGame';
 
 function App() {
 
@@ -19,6 +20,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/plan" element={<Plan />} />
+            <Route path="/game" element={<CyberpunkGame />} />
             {/* <Route path="/admin" element={<Admin />} /> */}
           </Routes>
 
