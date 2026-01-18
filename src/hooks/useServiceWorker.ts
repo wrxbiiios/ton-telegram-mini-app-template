@@ -16,14 +16,9 @@ export function useServiceWorker() {
               if (newWorker) {
                 newWorker.addEventListener('statechange', () => {
                   if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                    // New service worker available
-                    console.log('New service worker available');
-                    
-                    // Optionally notify user about update
-                    if (window.confirm('New version available! Reload to update?')) {
-                      newWorker.postMessage({ type: 'SKIP_WAITING' });
-                      window.location.reload();
-                    }
+                    // New service worker available - auto-update in background
+                    console.log('New version available, updating...');
+                    newWorker.postMessage({ type: 'SKIP_WAITING' });
                   }
                 });
               }
@@ -34,9 +29,12 @@ export function useServiceWorker() {
           });
       });
 
-      // Handle controller change
+      // Handle controller change - silently reload
       navigator.serviceWorker.addEventListener('controllerchange', () => {
-        window.location.reload();
+        // Only reload if we're not in the middle of an active game session
+        if (!document.hidden) {
+          window.location.reload();
+        }
       });
     }
   }, []);

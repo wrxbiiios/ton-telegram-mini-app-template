@@ -321,11 +321,13 @@ function handleDisconnect(playerId) {
 }
 
 function generateRoomId() {
-  return 'room_' + Math.random().toString(36).substr(2, 9);
+  // Use timestamp + random for better uniqueness
+  return 'room_' + Date.now().toString(36) + Math.random().toString(36).substr(2, 9);
 }
 
 function generatePlayerId() {
-  return 'player_' + Math.random().toString(36).substr(2, 9);
+  // Use timestamp + random for better uniqueness
+  return 'player_' + Date.now().toString(36) + Math.random().toString(36).substr(2, 9);
 }
 
 // REST API endpoints

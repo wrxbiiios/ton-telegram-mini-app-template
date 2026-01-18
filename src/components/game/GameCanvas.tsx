@@ -61,6 +61,8 @@ export function GameCanvas({ onGameOver, wave, setWave, health, setHealth, score
     enemySpawnTimer: 0,
     waveEnemiesLeft: 5,
     waveComplete: false,
+    lastDamageTime: 0, // Add damage cooldown tracking
+    damageCooldown: 500, // 500ms immunity after taking damage
   });
 
   const spawnEnemy = useCallback((canvasWidth: number, canvasHeight: number) => {
@@ -288,14 +290,16 @@ export function GameCanvas({ onGameOver, wave, setWave, health, setHealth, score
         }
       }
 
-      // Collision: player vs enemies
+      // Collision: player vs enemies (with damage cooldown)
+      const now = currentTime;
       enemies.forEach((enemy) => {
         const dx = player.x - enemy.x;
         const dy = player.y - enemy.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
 
-        if (dist < player.radius + enemy.radius) {
+        if (dist < player.radius + enemy.radius && now - state.lastDamageTime > state.damageCooldown) {
           setHealth(health - 1);
+          state.lastDamageTime = now;
           telegramWebApp?.HapticFeedback.impactOccurred('heavy');
           particles.push(...createParticles(player.x, player.y, '#ff0000', 5));
         }
