@@ -1,0 +1,94 @@
+;; AchievementNFT Smart Contract
+;; NFT for milestone achievements in Cyberpunk Shooter
+
+#include "stdlib.fc";
+
+;; Storage
+;; next_item_index, admin_address, collection_content
+(int, slice, cell) load_data() inline {
+    slice ds = get_data().begin_parse();
+    return (
+        ds~load_uint(64),   ;; next_item_index
+        ds~load_msg_addr(), ;; admin_address
+        ds~load_ref()       ;; collection_content
+    );
+}
+
+() save_data(int next_item_index, slice admin_address, cell collection_content) impure inline {
+    set_data(
+        begin_cell()
+            .store_uint(next_item_index, 64)
+            .store_slice(admin_address)
+            .store_ref(collection_content)
+            .end_cell()
+    );
+}
+
+;; Mint NFT for achievement
+() mint_achievement_nft(slice player_address, int achievement_id) impure {
+    var (next_item_index, admin_address, collection_content) = load_data();
+    
+    ;; Create NFT item
+    cell nft_content = begin_cell()
+        .store_uint(achievement_id, 256)
+        .end_cell();
+    
+    cell nft_item_msg = begin_cell()
+        .store_uint(0x18, 6)
+        .store_slice(player_address)
+        .store_coins(100000000) ;; 0.1 TON for storage
+        .store_uint(0, 1 + 4 + 4 + 64 + 32 + 1 + 1)
+        .store_ref(nft_content)
+        .end_cell();
+    
+    send_raw_message(nft_item_msg, 1);
+    
+    ;; Increment item index
+    next_item_index += 1;
+    save_data(next_item_index, admin_address, collection_content);
+}
+
+;; Main entry point
+() recv_internal(int my_balance, int msg_value, cell in_msg_full, slice in_msg_body) impure {
+    if (in_msg_body.slice_empty?()) {
+        return ();
+    }
+    
+    slice cs = in_msg_full.begin_parse();
+    int flags = cs~load_uint(4);
+    
+    if (flags & 1) {
+        return ();
+    }
+    
+    slice sender_address = cs~load_msg_addr();
+    
+    int op = in_msg_body~load_uint(32);
+    
+    if (op == 1) { ;; mint_nft
+        slice player = in_msg_body~load_msg_addr();
+        int achievement_id = in_msg_body~load_uint(256);
+        
+        var (_, admin_address, _) = load_data();
+        throw_unless(401, equal_slices(sender_address, admin_address));
+        
+        mint_achievement_nft(player, achievement_id);
+        return ();
+    }
+    
+    throw(0xffff);
+}
+
+;; Get methods
+int get_next_item_index() method_id {
+    var (next_item_index, _, _) = load_data();
+    return next_item_index;
+}
+
+cell get_collection_data() method_id {
+    var (next_item_index, _, collection_content) = load_data();
+    return begin_cell()
+        .store_uint(next_item_index, 64)
+        .store_ref(collection_content)
+        .end_cell();
+}

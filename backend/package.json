@@ -1,0 +1,23 @@
+{
+  "name": "cyberpunk-shooter-backend",
+  "version": "1.0.0",
+  "description": "Backend server for Cyberpunk Shooter Telegram Mini App",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "bot": "node telegram-bot.js"
+  },
+  "keywords": ["telegram", "game", "websocket", "multiplayer"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "ws": "^8.16.0",
+    "express": "^4.18.2",
+    "node-telegram-bot-api": "^0.64.0",
+    "mongodb": "^6.3.0",
+    "dotenv": "^16.3.1",
+    "cors": "^2.8.5"
+  }
+}
